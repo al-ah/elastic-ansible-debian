@@ -1,0 +1,2 @@
+{"ts":1645362104.57617,"host":"192.168.220.1","software_type":"HTTP::BROWSER","name":"Chrome","version.major":98,"version.minor":0,"version.minor2":4758,"version.minor3":102,"unparsed_version":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"}
+{"ts":1645362104.642337,"host":"192.168.220.131","host_p":15672,"software_type":"HTTP::SERVER","name":"Cowboy","unparsed_version":"Cowboy"}

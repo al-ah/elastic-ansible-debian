@@ -1,0 +1,19 @@
+---
+- name: Creates directory
+  file:
+    path: '{{ installation_files }}'
+    state: directory  
+    
+- name: Copy auditbeat installation file to the host
+  copy:
+    src: '{{ installation_files }}/auditbeat.deb'
+    dest: '{{ installation_files }}/auditbeat.deb'
+    
+- name: install auditbeat 
+  command: dpkg -i {{ installation_files }}/auditbeat.deb
+  
+- name: systemctl daemon-reload 
+  command: systemctl daemon-reload
+  
+- name: enable auditbeat service
+  command: systemctl enable auditbeat.service

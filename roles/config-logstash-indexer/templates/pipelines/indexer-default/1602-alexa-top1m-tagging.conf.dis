@@ -1,0 +1,27 @@
+filter {
+
+	if [dns][question][registered_domain] {
+		elasticsearch{
+			hosts => {{ elastic_data_hosts }}
+			ssl => true
+			ca_file => "/etc/logstash/certs/ca.crt"
+			user => "read_data"
+			password => "{{ read_data_pass }}"
+			index => "utility-domain-alexa"
+			query => 'domain.keyword: "%{[dns][question][registered_domain]}"'
+			fields => {
+			  "ranking" => "[dns][question][registered_domain_ranking]"
+			}
+		}
+		
+		if [dns][question][registered_domain_ranking] {
+			mutate{
+				add_tag => ["top1m"]
+			}
+		}
+	
+	}
+	
+	
+
+}

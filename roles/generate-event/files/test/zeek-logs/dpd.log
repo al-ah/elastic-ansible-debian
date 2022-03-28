@@ -1,0 +1,2 @@
+{"ts":1645362132.234813,"uid":"ClsO2q2Uaj9RupmgA8","id.orig_h":"172.16.133.46","id.orig_p":64558,"id.resp_h":"192.147.107.13","id.resp_p":80,"proto":"tcp","analyzer":"HTTP","failure_reason":"not a http reply line"}
+{"ts":1645362172.801239,"uid":"CdJQ8w1Cf2eVLdLZxi","id.orig_h":"172.16.133.34","id.orig_p":50636,"id.resp_h":"216.27.91.218","id.resp_p":80,"proto":"tcp","analyzer":"HTTP","failure_reason":"not a http reply line"}

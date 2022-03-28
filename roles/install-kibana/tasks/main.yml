@@ -1,0 +1,18 @@
+---
+- name: Creates directory
+  file:
+    path: '{{ installation_files }}'
+    state: directory  
+- name: Copy kibana installation file to the host
+  copy:
+    src: '{{ installation_files }}/kibana.deb'
+    dest: '{{ installation_files }}/kibana.deb'
+    
+- name: install kibana 
+  command: dpkg -i {{ installation_files }}/kibana.deb
+  
+- name: systemctl daemon-reload 
+  command: systemctl daemon-reload
+  
+- name: enable kibana service
+  command: systemctl enable kibana.service

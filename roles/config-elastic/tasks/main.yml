@@ -1,0 +1,102 @@
+---
+- name: stop elasticsearch service 
+  systemd:
+    name: elasticsearch.service
+    state: stopped
+
+- name: copy elasticsearch.service (prevent OOM killer)
+  copy:
+    src: 'elasticsearch.service'
+    dest: '/usr/lib/systemd/system/elasticsearch.service'
+
+- name: systemctl daemon-reload 
+  command: systemctl daemon-reload
+    
+- name: Creates elasticsearch_snapshots directory
+  file:
+    path: '/elasticsearch_snapshots'
+    state: directory
+    owner: elasticsearch
+    group: elasticsearch    
+    
+- name: copy elasticsearch.yml
+  template: 
+    src: elasticsearch.yml.j2 
+    dest: /etc/elasticsearch/elasticsearch.yml
+
+- name: copy jvm.options
+  template:
+    src: jvm.options.j2 
+    dest: /etc/elasticsearch/jvm.options
+        
+- name: create certs directory
+  file:
+    path: "/etc/elasticsearch/certs"
+    state: directory
+
+- name: copy ca.crt
+  copy:
+    src: '/elastic-ansible-debian/{{ certificate_path }}/ca/ca.crt'
+    dest: '/etc/elasticsearch/certs/ca.crt'
+
+- name: copy wildcard.crt
+  copy:
+    src: '/elastic-ansible-debian/{{ certificate_path }}/wildcard/wildcard.crt'
+    dest: '/etc/elasticsearch/certs/wildcard.crt'
+
+- name: copy wildcard.key
+  copy:
+    src: '/elastic-ansible-debian/{{ certificate_path }}/wildcard/wildcard.key'
+    dest: '/etc/elasticsearch/certs/wildcard.key'
+
+- name: set /var/lib/elasticsearch owner
+  file:
+    path: /var/lib/elasticsearch
+    owner: elasticsearch
+    group: elasticsearch
+    
+- name: start elasticsearch service 
+  systemd:
+    name: elasticsearch.service
+    state: started    
+    
+- name: pause after start elasticsearch service 
+  pause:
+    seconds: 15
+   
+- name: setup elasticsearch builtin passwords
+  expect:
+    command: '/usr/share/elasticsearch/bin/elasticsearch-setup-passwords auto -u"https://{{ ansible_host }}.{{ domain_name }}:9200"'
+    responses:
+      (.*)Do you want to continue with the password setup process(.*): "y" 
+      (.*)Please confirm that you would like to continue(.*): "y"  
+  ignore_errors: yes
+  timeout: 300
+      
+- name: add admin user to elastic
+  command: "/usr/share/elasticsearch/bin/elasticsearch-users useradd {{ admin_user }} -p {{ admin_password }} -r superuser" 
+  ignore_errors: yes
+  
+- name: add insert_data user to elastic
+  command: "/usr/share/elasticsearch/bin/elasticsearch-users useradd insert_data -p {{ insert_data_pass }} -r superuser" 
+  ignore_errors: yes
+  
+- name: add read_data user to elastic
+  command: "/usr/share/elasticsearch/bin/elasticsearch-users useradd read_data -p {{ read_data_pass }} -r superuser" 
+  ignore_errors: yes
+
+- name: set elastic user password
+  command: 'curl -u"{{ admin_user }}:{{ admin_password }}" -k -XPUT "https://{{ ansible_host }}.{{ domain_name }}:9200/_security/user/elastic/_password?pretty" -H "Content-Type: application/json" -d"{  \"password\" : \"{{ elastic_user_pass }}\"}"'  
+
+- name: set logstash_system user password
+  command: 'curl -u"{{ admin_user }}:{{ admin_password }}" -k -XPUT "https://{{ ansible_host }}.{{ domain_name }}:9200/_security/user/logstash_system/_password?pretty" -H "Content-Type: application/json" -d"{  \"password\" : \"{{ logstash_system_pass }}\"}"'  
+
+- name: set kibana_system user password
+  command: 'curl -u"{{ admin_user }}:{{ admin_password }}" -k -XPUT "https://{{ ansible_host }}.{{ domain_name }}:9200/_security/user/kibana_system/_password?pretty" -H "Content-Type: application/json" -d"{  \"password\" : \"{{ kibana_system_pass }}\"}"'  
+
+- name: set kibana user password
+  command: 'curl -u"{{ admin_user }}:{{ admin_password }}" -k -XPUT "https://{{ ansible_host }}.{{ domain_name }}:9200/_security/user/kibana/_password?pretty" -H "Content-Type: application/json" -d"{  \"password\" : \"{{ kibana_system_pass }}\"}"'   
+
+- name: add license
+  command: 'curl -u"{{ admin_user }}:{{ admin_password }}" -k -XPUT "https://{{ ansible_host }}.{{ domain_name }}:9200/_license" -H "Content-Type: application/json" --data-binary @"{{ installation_files }}/license.json"'
+  ignore_errors: yes

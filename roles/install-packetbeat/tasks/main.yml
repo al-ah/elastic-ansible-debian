@@ -1,0 +1,20 @@
+---
+# tasks file for install-packetbeat
+- name: Creates directory
+  file:
+    path: '{{ installation_files }}'
+    state: directory  
+    
+- name: Copy packetbeat installation file to the host
+  copy:
+    src: '{{ installation_files }}/packetbeat.deb'
+    dest: '{{ installation_files }}/packetbeat.deb'
+    
+- name: install packetbeat 
+  command: dpkg -i {{ installation_files }}/packetbeat.deb
+  
+- name: systemctl daemon-reload 
+  command: systemctl daemon-reload
+  
+- name: enable packetbeat service
+  command: systemctl enable packetbeat.service

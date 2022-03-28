@@ -1,0 +1,44 @@
+---
+# tasks file for config-suricata
+- name: stop suricata service 
+  systemd:
+    name: suricata.service
+    state: stopped
+  ignore_errors: yes
+      
+- name: copy suricata rules
+  copy:
+    src: rules
+    dest: /etc/suricata/
+    
+#- name: update suricata rules
+#  command: suricata-update -o /etc/suricata/rules   
+#  ignore_errors: yes 
+    
+- name: copy suricata.yaml
+  copy:
+    src: suricata.yaml
+    dest: /etc/suricata/suricata.yaml
+        
+- name: change suricata_home_net
+  replace:
+    path: /etc/suricata/suricata.yaml
+    regexp: 'SURICATA_HOME_NET'
+    replace: "{{ suricata_home_net }}"
+    
+- name: copy suricata.service
+  template:
+    src: suricata.service.j2
+    dest: /etc/systemd/system/suricata.service
+  
+- name: systemctl daemon-reload 
+  command: systemctl daemon-reload
+  
+- name: enable suricata service
+  command: systemctl enable suricata.service
+
+- name: start suricata service 
+  systemd:
+    name: suricata.service
+    state: started
+  ignore_errors: yes

@@ -1,0 +1,22 @@
+filter{
+
+	#if [dns][question][name]{
+	#	dns {
+	#		resolve => "[dns][question][name]"
+	#		action => "append"
+	##		nameserver => {
+	##		  address => ["8.8.8.8","4.2.2.4"]
+	##		}
+	#	}
+	#}
+	
+	if [source][ip] and [source][Ip_info][public]{
+		mutate{
+			add_field =>{ "[source][Reverse_dns]" => "%{[source][ip]}"}
+		}
+		dns {
+			reverse => "[source][Reverse_dns]"
+			action => "replace"
+		}
+	}	
+}

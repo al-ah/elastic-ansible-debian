@@ -1,0 +1,67 @@
+---
+- name: remove old "/tmp/{{ certificate_path }}"
+  file:
+    path: "/tmp/{{ certificate_path }}"
+    state: absent
+    
+- name: creates temp directory "{{ certificate_path }}"
+  file:
+    path: "/tmp/{{ certificate_path }}"
+    state: directory
+
+- name: copy instance.yml
+  copy:
+    src: 'instance.yml'
+    dest: '/tmp/{{ certificate_path }}/instance.yml'
+    
+- name: change domain_name in instance.yml
+  replace:
+    path: '/tmp/{{ certificate_path }}/instance.yml'
+    regexp: 'DOMAIN_NAME'
+    replace: "{{ domain_name }}"
+    
+- name: cd elasticsearch
+  shell: cd /usr/share/elasticsearch
+
+- name: create ca certificate
+  shell: /usr/share/elasticsearch/bin/elasticsearch-certutil ca --silent --pem --out '/tmp/{{ certificate_path }}/elastic-ca.zip'
+
+- name: extract elastic-ca.zip
+  unarchive:
+    src: '/tmp/{{ certificate_path }}/elastic-ca.zip'
+    dest: '/tmp/{{ certificate_path }}'
+    remote_src: yes
+    
+- name: create wildcard certificate
+  shell: /usr/share/elasticsearch/bin/elasticsearch-certutil cert --ca-cert '/tmp/{{ certificate_path }}/ca/ca.crt'  --ca-key '/tmp/{{ certificate_path }}/ca/ca.key' --silent --pem --in '/tmp/{{ certificate_path }}/instance.yml' --out '/tmp/{{ certificate_path }}/crts.zip'
+
+- name: extract certs
+  unarchive:
+    src: '/tmp/{{ certificate_path }}/crts.zip'
+    dest: '/tmp/{{ certificate_path }}'
+    remote_src: yes
+
+- name: fetch ca.crt from host to console 
+  fetch:
+    src: '/tmp/{{ certificate_path }}/ca/ca.crt'
+    dest: '/elastic-ansible-debian/{{ certificate_path }}/ca/ca.crt'
+    flat: yes
+    
+   
+- name: fetch ca.key from host to console
+  fetch:
+    src: '/tmp/{{ certificate_path }}/ca/ca.key'
+    dest: '/elastic-ansible-debian/{{ certificate_path }}/ca/ca.key'
+    flat: yes
+    
+- name: fetch wildcard.crt from host to console
+  fetch:
+    src: '/tmp/{{ certificate_path }}/wildcard/wildcard.crt'
+    dest: '/elastic-ansible-debian/{{ certificate_path }}/wildcard/wildcard.crt'
+    flat: yes
+    
+- name: fetch wildcard.key from host to console
+  fetch:
+    src: '/tmp/{{ certificate_path }}/wildcard/wildcard.key'
+    dest: '/elastic-ansible-debian/{{ certificate_path }}/wildcard/wildcard.key'
+    flat: yes

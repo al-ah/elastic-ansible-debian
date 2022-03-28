@@ -1,0 +1,44 @@
+filter {
+
+	if [event][dataset] == "zeek.connection" {
+		aggregate{
+			#aggregate_maps_path => "/path/to/.aggregate_maps"		
+			task_id => "%{[source][ip]}-%{[source][port]}-%{[destination][ip]}-%{[destination][port]}"
+			
+			timeout => 60
+			inactivity_timeout => 15
+			push_map_as_event_on_timeout => true
+			
+			code => "
+			
+			map['event'] ||= {}
+			map['event']['type'] ||= 'aggregated_conn'
+			
+			map['source'] ||= {}
+			map['destination'] ||= {}
+			
+			map['source']['ip'] ||= event.get('[source][ip]') 
+			map['source']['port'] ||= event.get('[source][port]')
+			map['destination']['ip'] ||= event.get('[destination][ip]')
+			map['destination']['port'] ||= event.get('[destination][port]')
+			
+			map['source']['bytes'] ||= 0
+			map['source']['packets'] ||= 0		
+			map['destination']['bytes'] ||= 0
+			map['destination']['packets'] ||= 0
+			
+			map['source']['bytes'] += event.get('[source][bytes]') || 0
+			map['source']['packets'] += event.get('[source][packets]') || 0
+			map['destination']['bytes'] += event.get('[destination][bytes]') || 0
+			map['destination']['packets'] += event.get('[destination][packets]') || 0
+			
+			map['connection_count'] ||= 0
+			map['connection_count'] += 1
+			
+			#event.cancel
+			
+			"
+					
+		}
+	}
+}

@@ -1,0 +1,8 @@
+---
+# besme allah
+# author: ali.ahmadi
+- hosts: initial_master
+  become: yes
+  tasks:   
+  - import_role:
+      name: beats-setup

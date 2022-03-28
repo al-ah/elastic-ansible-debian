@@ -1,0 +1,19 @@
+---
+- name: Creates directory
+  file:
+    path: '{{ installation_files }}'
+    state: directory  
+    
+- name: Copy logstash installation file to the host
+  copy:
+    src: '{{ installation_files }}/logstash.deb'
+    dest: '{{ installation_files }}/logstash.deb'
+    
+- name: install logstash 
+  command: dpkg -i {{ installation_files }}/logstash.deb
+  
+- name: systemctl daemon-reload 
+  command: systemctl daemon-reload
+  
+- name: enable logstash service
+  command: systemctl enable logstash.service

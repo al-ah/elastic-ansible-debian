@@ -1,0 +1,28 @@
+---
+- name: Creates directory
+  file:
+    path: '{{ installation_files }}'
+    state: directory  
+    
+- name: copy ilms to the host
+  copy:
+    src: '{{ item }}.json'
+    dest: '{{ installation_files }}/{{ item }}.json'
+  ignore_errors: yes
+  with_items:
+    - auditbeat
+    - winlogbeat
+    - packetbeat
+    - metricbeat
+    - filebeat
+
+- name: add ilms to the elastic
+  command: 'curl -u"{{ admin_user }}:{{ admin_password }}" -k -XPUT "https://{{ ansible_host }}.{{ domain_name }}:9200/_ilm/policy/{{ item }}" -H "Content-Type: application/json" --data-binary @"{{ installation_files }}/{{ item }}.json"'
+  ignore_errors: yes
+  with_items:
+    - auditbeat
+    - winlogbeat
+    - packetbeat
+    - metricbeat
+    - filebeat
+    

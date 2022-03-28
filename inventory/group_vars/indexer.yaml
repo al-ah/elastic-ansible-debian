@@ -1,0 +1,5 @@
+logstash_jvm_min: 512m
+logstash_jvm_max: 512m
+logstash_log_level: info
+
+logstash_output_beats_version: '8.1.1'

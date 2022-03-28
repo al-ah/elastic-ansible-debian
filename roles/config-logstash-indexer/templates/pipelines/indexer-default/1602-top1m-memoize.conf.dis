@@ -1,0 +1,41 @@
+filter {
+
+	if [dns][question][registered_domain] {
+		
+		ruby{
+			code => 'event.set("filter_start_time" , Time.now)'
+		}
+		
+		memoize {
+			key => "%{[dns][question][registered_domain]}"
+			fields => [ "[dns][question][registered_domain_ranking]" ]
+			cache_size => 5000  # Maximum size of cache ,default : 1000
+			ttl => 3600 # The TTL(Time To Live) in second of cached value , default :
+			filter_name => "elasticsearch"
+			filter_options => {
+				hosts => {{ elastic_data_hosts }}
+				ssl => true
+				ca_file => "/etc/logstash/certs/ca.crt"
+				user => "admin"
+				password => "P@ssw0rd"
+				index => "utility-domain-alexa"
+				query => 'domain.keyword : "%{[dns][question][registered_domain]}"'
+				fields => {
+					"ranking" => "[dns][question][registered_domain_ranking]"
+					}
+				}
+		}
+		
+		if [dns][question][registered_domain_ranking]{
+			mutate{
+				add_tag => ["top1m"]
+			}			
+		}	
+		
+		
+		ruby{
+			code => 'event.set("filter_duration" , Time.now.to_f - event.get("filter_start_time").to_f )'
+			remove_field => ["filter_start_time"]
+		}
+	}
+}

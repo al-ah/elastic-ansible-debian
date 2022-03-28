@@ -1,0 +1,75 @@
+---
+- name: stop kibana service 
+  systemd:
+    name: kibana.service
+    state: stopped
+
+- name: enable 443 port for kibana
+  command: 'sudo setcap cap_net_bind_service=+epi {{ item }}'
+  ignore_errors: yes
+  with_items:
+    - /usr/share/kibana/bin/kibana
+    - /usr/share/kibana/bin/kibana-plugin
+    - /usr/share/kibana/bin/kibana-keystore
+    - /usr/share/kibana/node/bin/node
+    
+- name: copy kibana.yml
+  template: 
+    src: kibana.yml.j2 
+    dest: /etc/kibana/kibana.yml
+ 
+- name: create certs directory
+  file:
+    path: "/etc/kibana/certs"
+    state: directory
+
+- name: copy ca.crt
+  copy:
+    src: '/elastic-ansible-debian/{{ certificate_path }}/ca/ca.crt'
+    dest: '/etc/kibana/certs/ca.crt'
+
+- name: copy wildcard.crt
+  copy:
+    src: '/elastic-ansible-debian/{{ certificate_path }}/wildcard/wildcard.crt'
+    dest: '/etc/kibana/certs/wildcard.crt'
+
+- name: copy wildcard.key
+  copy:
+    src: '/elastic-ansible-debian/{{ certificate_path }}/wildcard/wildcard.key'
+    dest: '/etc/kibana/certs/wildcard.key'
+    
+# install offline plugins
+- name: create kibana ofline plugin directory
+  file:
+    path: "/tmp/kibana-ofline-plugins"
+    state: directory
+    
+- name: copy kibana ofline plugins
+  copy:
+    src: kibana-offline-plugins/{{ item }}-{{ kibana_version }}.zip
+    dest: /tmp/kibana-ofline-plugins/{{ item }}-{{ kibana_version }}.zip
+  ignore_errors: yes
+  with_items:
+    - assetManager
+
+- name: remove kibana ofline plugins
+  command: '/usr/share/kibana/bin/kibana-plugin remove {{ item }}'
+  ignore_errors: yes
+  args:
+    chdir: "/usr/share/kibana"
+  with_items:
+    - assetManager
+
+- name: install kibana ofline plugins
+  command: '/usr/share/kibana/bin/kibana-plugin install file:///tmp/kibana-ofline-plugins/{{ item }}-{{ kibana_version }}.zip'
+  ignore_errors: yes
+  args:
+    chdir: "/usr/share/kibana"
+  with_items:
+    - assetManager 
+    
+    
+- name: start kibana service 
+  systemd:
+    name: kibana.service
+    state: started    

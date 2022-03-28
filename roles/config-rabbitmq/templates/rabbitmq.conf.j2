@@ -1,0 +1,35 @@
+## https://www.rabbitmq.com/configure.html
+##https://github.com/rabbitmq/rabbitmq-server/blob/master/deps/rabbit/docs/rabbitmq.conf.example
+
+listeners.tcp.default = 5672
+
+management.tcp.port = 15672
+
+
+##This should only be used when actual maximum amount of RAM available to the node doesn't match the value that will be inferred by the node:
+total_memory_available_override_value = {{ rabbitmq_total_memory }}
+
+
+##Memory threshold at which the flow control is triggered. Can be absolute or relative to the amount of RAM available to the OS: 
+## By default, when the RabbitMQ server uses above 40% of the available RAM, it raises a memory alarm and blocks all connections that are publishing messages. Once the memory alarm has cleared (e.g. due to the server paging messages to disk or delivering them to clients that consume and acknowledge the deliveries) normal service resumes. see https://www.rabbitmq.com/memory.html document.
+vm_memory_high_watermark.relative = 0.4
+#vm_memory_high_watermark.absolute = 2GB
+
+
+#Before the broker hits the vm_memory_high_watermark and blocks publishers, it will attempt to free up memory by instructing queues to page their contents out to disc. Both persistent and transient messages will be paged out (the persistent messages will already be on disc but will be evicted from memory).By default this starts to happen when the broker is 50% of the way to the high watermark :
+vm_memory_high_watermark_paging_ratio = 0.5
+
+
+##Disk free space limit of the partition on which RabbitMQ is storing data. When available disk space falls below this limit, flow control is triggered. The value can be set relative to the total amount of RAM or as an absolute value in bytes or, alternatively, in information units (e.g `50MB` or `5GB`): 
+#disk_free_limit.relative = 3.0
+disk_free_limit.absolute = 1GB
+
+
+#ssl_options.cacertfile           = /path/to/ca_certificate.pem
+#ssl_options.certfile             = /path/to/server_certificate.pem
+#ssl_options.keyfile              = /path/to/server_key.pem
+#ssl_options.verify               = verify_peer
+#ssl_options.fail_if_no_peer_cert = true
+
+# one hour in milliseconds
+consumer_timeout = 3600000

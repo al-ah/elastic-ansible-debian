@@ -1,0 +1,4 @@
+# these vars override groups_vars then i commented 
+
+# each cluster require this elastic node roles: master, ingest, (data_content, data_hot) or data
+#elastic_node_roles: [master, ingest, transform, remote_cluster_client, ml, data_content, data_hot, data_warm, data_cold,data_frozen]

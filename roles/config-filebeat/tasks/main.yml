@@ -1,0 +1,26 @@
+---
+# tasks file for config-filebeat
+- name: stop filebeat service 
+  systemd:
+    name: filebeat.service
+    state: stopped
+    
+- name: copy filebeat.yml
+  template:
+    src: filebeat.yml.j2
+    dest: /etc/filebeat/filebeat.yml
+ 
+- name: create certs directory
+  file:
+    path: "/etc/filebeat/certs"
+    state: directory
+    
+- name: copy ca.crt
+  copy:
+    src: '/elastic-ansible-debian/{{ certificate_path }}/ca/ca.crt'
+    dest: '/etc/filebeat/certs/ca.crt'
+
+- name: start filebeat service 
+  systemd:
+    name: filebeat.service
+    state: started    

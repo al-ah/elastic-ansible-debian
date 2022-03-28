@@ -1,0 +1,36 @@
+20/2/2022 -- 16:01:54 - <Notice> - This is Suricata version 6.0.1 RELEASE running in USER mode
+20/2/2022 -- 16:01:54 - <Info> - CPUs/cores online: 2
+20/2/2022 -- 16:01:54 - <Info> - fast output device (regular) initialized: fast.log
+20/2/2022 -- 16:01:54 - <Info> - eve-log output device (regular) initialized: eve.json
+20/2/2022 -- 16:01:54 - <Info> - stats output device (regular) initialized: stats.log
+20/2/2022 -- 16:02:02 - <Info> - 1 rule files processed. 24496 rules successfully loaded, 0 rules failed
+20/2/2022 -- 16:02:02 - <Info> - Threshold config parsed: 0 rule(s) found
+20/2/2022 -- 16:02:02 - <Info> - 24499 signatures processed. 1346 are IP-only rules, 4099 are inspecting packet payload, 18855 inspect application layer, 104 are decoder event only
+20/2/2022 -- 16:02:34 - <Info> - Using unix socket file '/var/run/suricata-command.socket'
+20/2/2022 -- 16:02:34 - <Notice> - all 3 packet processing threads, 4 management threads initialized, engine started.
+20/2/2022 -- 16:02:34 - <Info> - Starting file run for /test/pcaps/bigFlows.pcap
+20/2/2022 -- 16:02:34 - <Info> - No packets with invalid checksum, assuming checksum offloading is NOT used
+20/2/2022 -- 16:02:47 - <Info> - pcap file /test/pcaps/bigFlows.pcap end of file reached (pcap err code 0)
+20/2/2022 -- 16:02:47 - <Notice> - Signal Received.  Stopping engine.
+20/2/2022 -- 16:02:47 - <Info> - time elapsed 13.278s
+20/2/2022 -- 16:02:47 - <Notice> - Pcap-file module read 1 files, 791615 packets, 355417784 bytes
+20/2/2022 -- 16:02:47 - <Info> - Alerts: 312
+20/2/2022 -- 16:02:47 - <Info> - cleaning up signature grouping structure... complete
+20/2/2022 -- 16:03:45 - <Notice> - This is Suricata version 6.0.1 RELEASE running in USER mode
+20/2/2022 -- 16:03:45 - <Info> - CPUs/cores online: 2
+20/2/2022 -- 16:03:46 - <Info> - fast output device (regular) initialized: fast.log
+20/2/2022 -- 16:03:46 - <Info> - eve-log output device (regular) initialized: eve.json
+20/2/2022 -- 16:03:46 - <Info> - stats output device (regular) initialized: stats.log
+20/2/2022 -- 16:03:52 - <Info> - 1 rule files processed. 24496 rules successfully loaded, 0 rules failed
+20/2/2022 -- 16:03:52 - <Info> - Threshold config parsed: 0 rule(s) found
+20/2/2022 -- 16:03:52 - <Info> - 24499 signatures processed. 1346 are IP-only rules, 4099 are inspecting packet payload, 18855 inspect application layer, 104 are decoder event only
+20/2/2022 -- 16:04:17 - <Info> - Using unix socket file '/var/run/suricata-command.socket'
+20/2/2022 -- 16:04:17 - <Notice> - all 3 packet processing threads, 4 management threads initialized, engine started.
+20/2/2022 -- 16:04:17 - <Info> - Starting file run for /test/pcaps/bigFlows.pcap
+20/2/2022 -- 16:04:17 - <Info> - No packets with invalid checksum, assuming checksum offloading is NOT used
+20/2/2022 -- 16:04:26 - <Info> - pcap file /test/pcaps/bigFlows.pcap end of file reached (pcap err code 0)
+20/2/2022 -- 16:04:26 - <Notice> - Signal Received.  Stopping engine.
+20/2/2022 -- 16:04:27 - <Info> - time elapsed 9.644s
+20/2/2022 -- 16:04:27 - <Notice> - Pcap-file module read 1 files, 791615 packets, 355417784 bytes
+20/2/2022 -- 16:04:27 - <Info> - Alerts: 309
+20/2/2022 -- 16:04:27 - <Info> - cleaning up signature grouping structure... complete

@@ -1,0 +1,73 @@
+filter {
+
+	if [dns][question][registered_domain] {
+		
+		#ruby{
+		#	code => 'event.set("filter_start_time" , Time.now)'
+		#}
+		
+		memcached{
+		
+			namespace => "whitelist_domain"
+			 get => {
+			  "%{[dns][question][registered_domain]}" => "[@metadata][dns][question][registered_domain_ranking]"
+			  "%{[dns][question][registered_domain]}_not_exists" => "[@metadata][not_exists_in_alexa]"
+			}		
+		}
+		if [@metadata][dns][question][registered_domain_ranking] {
+				mutate{
+					add_tag => ["top1m"]
+				}
+		}
+		else if ![@metadata][not_exists_in_alexa]{
+		
+			
+			#mutate{
+			#	add_tag => ["calling_elasticsearch"]
+			#}
+			elasticsearch{
+				hosts => {{ elastic_data_hosts }}
+				ssl => true
+				ca_file => "/etc/logstash/certs/ca.crt"
+				user => "read_data"
+				password => "{{ read_data_pass }}"
+				index => "utility-domain-alexa"
+				query => 'domain.keyword: "%{[dns][question][registered_domain]}"'
+				fields => {
+				  "ranking" => "[@metadata][dns][question][registered_domain_ranking]"
+				}
+			}
+			
+			if [@metadata][dns][question][registered_domain_ranking] {
+				mutate{
+					add_tag => ["top1m"]
+				}
+		
+				memcached{
+					 namespace => "whitelist_domain"
+					 set => {
+					  "[@metadata][dns][question][registered_domain_ranking]" => "%{[dns][question][registered_domain]}"
+					}		
+				}
+			}	
+			else {
+				
+				memcached{
+					 namespace => "whitelist_domain"
+					 set => {
+					  "[dns][question][registered_domain]" => "%{[dns][question][registered_domain]}_not_exists"
+					}
+					ttl => 3600
+				}
+			}
+		
+		}
+		
+		
+		
+		#ruby{
+		#	code => 'event.set("filter_duration" , Time.now.to_f - event.get("filter_start_time").to_f )'
+		#	remove_field => ["filter_start_time"]
+		#}
+	}
+}

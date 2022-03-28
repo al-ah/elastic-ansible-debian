@@ -1,0 +1,16 @@
+---
+# tasks file for config-haproxy
+- name: stop haproxy service 
+  systemd:
+    name: haproxy.service
+    state: stopped
+    
+- name: copy haproxy.cfg
+  template: 
+    src: haproxy.cfg.j2 
+    dest: /etc/haproxy/haproxy.cfg
+ 
+- name: start haproxy service 
+  systemd:
+    name: haproxy.service
+    state: started    

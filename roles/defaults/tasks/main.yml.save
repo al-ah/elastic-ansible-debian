@@ -1,0 +1,15 @@
+---
+# tasks file for defaults
+- hosts: all
+  ecome: yes
+  tasks:
+    - name: set time zone 
+      command: timedatectl set-timezone "{{ timezone }}"
+    - name: Set a hostname
+      hostname:
+        name: '{{ ansible_host }}'        
+    - name: Copy hosts file to hosts
+      copy:
+        src: /etc/hosts
+        dest: /etc/hosts
+  

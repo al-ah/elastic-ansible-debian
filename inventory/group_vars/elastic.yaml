@@ -1,0 +1,4 @@
+elastic_jvm_min: 1g
+elastic_jvm_max: 1g
+
+elastic_version: 8.1.1

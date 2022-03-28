@@ -1,0 +1,46 @@
+filter{
+		# read network list from elastic, (full options)
+		if ![source][Ip_info][public]{
+			asset_network {
+				hosts => {{ elastic_data_hosts }}
+				user => "read_data"
+				password => "{{ read_data_pass }}"
+				ssl => true
+				ca_file => "/etc/logstash/certs/ca.crt"
+				index => "utility-asset-network"
+				query_string => "*"
+				order_by => "priority"
+				order_type => "desc"
+				request_timeout => 30
+				refresh_interval => 1800
+				ip_field => "[source][ip]"
+				name_target =>  "[source][Ip_info][network]"
+				geo_target =>  "[source][geo][location]"
+				no_match_tag => "no_network_matched"
+				no_network_tag => "no_network_exists"
+			}		
+		}
+
+		# read network list from elastic, (minimal options)
+		if ![host][Ip_info][public]{
+			asset_network {
+				hosts => {{ elastic_data_hosts }}
+				user => "read_data"
+				password => "{{ read_data_pass }}"
+				ssl => true
+				ca_file => "/etc/logstash/certs/ca.crt"
+				ip_field => "[host][ip]"
+				geo_target =>  "[host][geo][location]"
+			}
+		}
+		
+		# read network list from file, (minimal options)		
+		if ![destination][Ip_info][public]{
+			asset_network {
+				source_file => "/etc/logstash/conf.d/pipelines/network-list.json"
+				ip_field => "[destination][ip]"
+				name_target =>  "[destination][Ip_info][network]"
+				geo_target =>  "[destination][geo][location]"
+			}	
+		}	
+}

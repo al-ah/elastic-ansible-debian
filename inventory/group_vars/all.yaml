@@ -1,0 +1,24 @@
+domain_name: es.org
+
+admin_user: admin
+admin_password: P@ssw0rd
+insert_data_pass: afa6f038222dfc6
+read_data_pass: afa6f038222dfc6
+elastic_user_pass: PAssw0rd1400alid
+kibana_system_pass: afa6f0382207a0bb5e23
+logstash_system_pass: 2878ebb2dfc6ba096102
+
+message_broker_admin_user: admin
+message_broker_admin_pass: P@ssw0rd
+
+message_broker_data_user: broker_data
+message_broker_data_pass: P@ssw0rd
+
+installation_files: /debian-packages
+timezone: Asia/Tehran
+certificate_path: elastic-certs
+
+# use in kibana and logstash for connect to elasticsearch (without http/https )
+elastic_data_hosts: ["node1.{{ domain_name }}"]
+
+kibana_port: 443

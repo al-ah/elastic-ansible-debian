@@ -1,0 +1,56 @@
+input{
+	elasticsearch{
+		hosts => {{ elastic_data_hosts }}
+		ssl => true
+		ca_file => "/etc/logstash/certs/ca.crt"
+		user => "read_data"
+		password => "{{ read_data_pass }}"
+		index => "utility-domain-alexa"
+		query => '{
+		  "sort": [
+			{
+			  "ranking": {
+				"order": "asc"
+			  }
+			}
+		  ],
+		  "query": {
+			"bool": {
+			  "must": [
+				{
+				  "range": {
+					"ranking": {
+					  "lte": 50000
+					}
+				  }
+				}
+			  ]
+			}
+		  },
+		  "_source": [
+			"ranking",
+			"domain"
+		  ]
+		}'
+		scroll => "1m"
+		size => 200
+		#schedule => "1 */3 * * *"
+		add_field => {"input_type" => "alexa"}
+	}
+}
+
+
+filter {
+	if [input_type] == "alexa"{		
+		memcached{
+			 namespace => "whitelist_domain"
+			 set => {
+			  "[ranking]" => "%{[domain]}"
+			}		
+		}
+		
+		ruby {
+			code => 'event.cancel'
+		}
+	}
+}

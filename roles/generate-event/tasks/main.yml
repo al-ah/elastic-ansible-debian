@@ -1,0 +1,6 @@
+---
+# tasks file for generate-event
+- name: Copy test folder
+  copy:
+    src: 'test'
+    dest: '/'

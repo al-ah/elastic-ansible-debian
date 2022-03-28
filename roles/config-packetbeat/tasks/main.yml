@@ -1,0 +1,36 @@
+---
+# tasks file for config-packetbeat
+- name: stop packetbeat service 
+  systemd:
+    name: packetbeat.service
+    state: stopped
+    
+- name: copy packetbeat.yml
+  template:
+    src: packetbeat.yml.j2
+    dest: /etc/packetbeat/packetbeat.yml
+    
+- name: create certs directory
+  file:
+    path: "/etc/packetbeat/certs"
+    state: directory
+    
+- name: copy ca.crt
+  copy:
+    src: '/elastic-ansible-debian/{{ certificate_path }}/ca/ca.crt'
+    dest: '/etc/packetbeat/certs/ca.crt'
+
+- name: start packetbeat service 
+  systemd:
+    name: packetbeat.service
+    state: started    
+    
+## stop packetbeat    
+- name: stop packetbeat service 
+  systemd:
+    name: packetbeat.service
+    state: stopped   
+    
+## disable packetbeat    
+- name: disable packetbeat service
+  command: systemctl disable packetbeat.service    
