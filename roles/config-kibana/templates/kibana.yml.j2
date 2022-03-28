@@ -1,0 +1,46 @@
+server.port: {{ kibana_port }}
+server.host: "0.0.0.0"
+
+server.ssl.enabled: true
+elasticsearch.hosts: [ "https://{{ ansible_host }}.{{ domain_name }}:9200" ]
+server.publicBaseUrl: "https://{{ ansible_host }}.{{ domain_name }}:{{ kibana_port }}"
+server.ssl.certificate: /etc/kibana/certs/wildcard.crt
+server.ssl.key: /etc/kibana/certs/wildcard.key
+
+elasticsearch.ssl.certificateAuthorities: "/etc/kibana/certs/ca.crt"
+elasticsearch.username: "kibana_system"
+elasticsearch.password: "{{ kibana_system_pass }}"
+
+elasticsearch.requestTimeout: 120000
+xpack.reporting.queue.timeout: 120000
+
+## The default application to load.
+{% if packetbeat_interface is defined %}
+#kibana.defaultAppId: "dashboard/{{ kibana_default_dashboard_id }}"
+{% else %}
+#kibana.defaultAppId: "dashboard/123"
+{% endif %}
+
+map.tilemap.url: https://a.tile.openstreetmap.org/{z}/{x}/{y}.png
+
+#xpack.encryptedSavedObjects.encryptionKey: 3a8b731481c8a50e42b91d1a98a69607
+#xpack.reporting.encryptionKey: 382e1a01762c5eba426aa769499a880c
+#xpack.security.encryptionKey: 85be1e66bf968bcca3619384b81199cb
+
+
+logging:
+  appenders:
+    file:
+      type: file
+      fileName: /var/log/kibana/kibana.log
+      layout:
+        type: json
+  root:
+    appenders:
+      - default
+      - file
+      
+# Specifies the path where Kibana creates the process ID file.
+pid.file: /run/kibana/kibana.pid
+
+xpack.fleet.outputs: [{id: fleet-default-output, name: default, is_default: true, is_default_monitoring: true, type: elasticsearch, hosts: [ "https://{{ ansible_host }}.{{ domain_name }}:9200" ], ca_trusted_fingerprint: 8547c4c7557dc9d4a1f547570d6daad8bc824e1b96628d43694eb2c94e7df5ef}]

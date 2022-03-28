@@ -1,0 +1,87 @@
+
+output {
+	# in elastic v7 create indices eg: filebeat-7.16.2-2022.03.28-000001	
+	if [@metadata][beat] == "filebeat" {
+		elasticsearch {
+			hosts => {{ elastic_data_hosts }}
+			ssl => true
+			cacert => "/etc/logstash/certs/ca.crt"				
+			ssl_certificate_verification => false
+			user => "insert_data"
+			password => "{{ insert_data_pass }}"
+			ilm_enabled => true
+			ilm_rollover_alias => "filebeat-{{ logstash_output_beats_version }}"
+			ilm_pattern => "{now/d}-000001"
+			ilm_policy => "filebeat"
+		}
+	}
+	else if [@metadata][beat] == "metricbeat" {
+		elasticsearch {
+			hosts => {{ elastic_data_hosts }}
+			ssl => true
+			cacert => "/etc/logstash/certs/ca.crt"				
+			ssl_certificate_verification => false
+			user => "insert_data"
+			password => "{{ insert_data_pass }}"
+			ilm_enabled => true
+			ilm_rollover_alias => "metricbeat-{{ logstash_output_beats_version }}"
+			ilm_pattern => "{now/d}-000001"
+			ilm_policy => "metricbeat"
+		}
+	}
+	else if [@metadata][beat] == "packetbeat" {
+		elasticsearch {
+			hosts => {{ elastic_data_hosts }}
+			ssl => true
+			cacert => "/etc/logstash/certs/ca.crt"				
+			ssl_certificate_verification => false
+			user => "insert_data"
+			password => "{{ insert_data_pass }}"
+			ilm_enabled => true
+			ilm_rollover_alias => "packetbeat-{{ logstash_output_beats_version }}"
+			ilm_pattern => "{now/d}-000001"
+			ilm_policy => "packetbeat"
+		}
+	}
+	else if [@metadata][beat] == "auditbeat" {
+		elasticsearch {
+			hosts => {{ elastic_data_hosts }}
+			ssl => true
+			cacert => "/etc/logstash/certs/ca.crt"				
+			ssl_certificate_verification => false
+			user => "insert_data"
+			password => "{{ insert_data_pass }}"
+			ilm_enabled => true
+			ilm_rollover_alias => "auditbeat-{{ logstash_output_beats_version }}"
+			ilm_pattern => "{now/d}-000001"
+			ilm_policy => "auditbeat"
+		}
+	}
+	else if [@metadata][beat] == "winlogbeat" {
+		elasticsearch {
+			hosts => {{ elastic_data_hosts }}
+			ssl => true
+			cacert => "/etc/logstash/certs/ca.crt"				
+			ssl_certificate_verification => false
+			user => "insert_data"
+			password => "{{ insert_data_pass }}"
+			ilm_enabled => true
+			ilm_rollover_alias => "winlogbeat-{{ logstash_output_beats_version }}"
+			ilm_pattern => "{now/d}-000001"
+			ilm_policy => "winlogbeat"
+		}
+	}
+	
+	# without ilm and wrong index_template
+	else if [@metadata][beat] {
+		elasticsearch {
+			hosts => {{ elastic_data_hosts }}
+			ssl => true
+			cacert => "/etc/logstash/certs/ca.crt"				
+			ssl_certificate_verification => false
+			user => "insert_data"
+			password => "{{ insert_data_pass }}"
+			index => "%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}" 
+		}
+	}
+}

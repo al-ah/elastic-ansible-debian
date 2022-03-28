@@ -1,0 +1,24 @@
+---
+- name: Creates directory
+  file:
+    path: '{{ installation_files }}'
+    state: directory  
+    
+- name: Copy memcached installation file to the host
+  copy:
+    src: '{{ installation_files }}/memcached.deb'
+    dest: '{{ installation_files }}/memcached.deb'
+    
+- name: install memcached 
+  command: dpkg -i {{ installation_files }}/memcached.deb
+  
+- name: systemctl daemon-reload 
+  command: systemctl daemon-reload
+  
+- name: enable memcached service
+  command: systemctl enable memcached.service
+
+- name: start memcached service 
+  systemd:
+    name: memcached.service
+    state: started    

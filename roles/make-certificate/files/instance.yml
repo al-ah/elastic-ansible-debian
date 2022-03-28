@@ -1,0 +1,5 @@
+---
+# add the instance information to yml file
+instances:
+  - name: "wildcard"
+    dns: ['*.DOMAIN_NAME']

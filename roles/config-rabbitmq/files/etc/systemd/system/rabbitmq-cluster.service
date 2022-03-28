@@ -1,0 +1,21 @@
+[Unit]
+Description=RabbitMQ Cluster
+
+[Service]
+Type=forking
+Restart=on-failure
+RestartSec=10
+#TimeoutStartSec=infinity
+#TimeoutStartSec=0
+TimeoutStartSec=600
+TimeoutStopSec=600
+PIDFIle=/tmp/rabbitmq-cluster.pid
+
+#ExecStart=python3 /usr/share/elastic-stack/rabbitmq-cluster.py -a start -s 1
+#ExecReload=python3 /usr/share/elastic-stack/rabbitmq-cluster.py -a restart -s 1
+ExecStart=/usr/share/elastic-stack/rabbitmq-cluster-start.sh
+ExecReload=/usr/share/elastic-stack/rabbitmq-cluster-reload.sh
+ExecStop=python3 /usr/share/elastic-stack/rabbitmq-cluster.py -a stop -s 1
+
+[Install]
+WantedBy=multi-user.target

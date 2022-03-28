@@ -1,0 +1,59 @@
+---
+# tasks file for config-zeek
+
+- name: stop zeek service if currently is running
+  systemd:
+    name: zeek.service
+    state: stopped
+  ignore_errors: yes
+  
+- name: copy /etc/profile.d/zeek.sh
+  copy:
+    src: zeek.sh
+    dest: /etc/profile.d/zeek.sh 
+    
+- name: zeek source /etc/profile.d/zeek.sh
+  shell: '/bin/bash /etc/profile.d/zeek.sh'
+  
+- name: copy zeek networks.cfg
+  template:
+    src: networks.cfg.j2
+    dest: /opt/zeek/etc/networks.cfg
+    
+- name: copy zeek node.cfg
+  template:
+    src: node.cfg.j2
+    dest: /opt/zeek/etc/node.cfg
+    
+- name: copy zeek local.zeek
+  copy:
+    src: local.zeek
+    dest: /opt/zeek/share/zeek/site/local.zeek
+
+## used zeekctl install and zeek.service instead of zeekctl deploy
+#- name: zeekctl deploy
+#  command: zeekctl deploy    
+  
+#- name: source /etc/profile.d/zeek.sh
+#  shell: source /etc/profile.d/zeek.sh 
+#  ignore_errors: yes
+  
+- name: zeekctl install
+  shell: /opt/zeek/bin/zeekctl install  
+   
+- name: copy zeek.service
+  copy:
+    src: zeek.service
+    dest: /etc/systemd/system/zeek.service
+    
+- name: systemctl daemon-reload 
+  shell: systemctl daemon-reload
+  
+- name: enable zeek service
+  shell: systemctl enable zeek.service  
+
+- name: start zeek service 
+  systemd:
+    name: zeek.service
+    state: started
+  ignore_errors: yes

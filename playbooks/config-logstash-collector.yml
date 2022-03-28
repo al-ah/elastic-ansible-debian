@@ -1,0 +1,11 @@
+---
+# besme allah
+# author: ali.ahmadi
+
+- hosts: collector
+  become: yes
+  tasks:   
+  - import_role:
+      name: install-logstash
+  - import_role:
+      name: config-logstash-collector

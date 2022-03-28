@@ -1,0 +1,28 @@
+{
+  "order": 0,
+  "index_patterns": [
+    "filebeat-*",
+    "packetbeat-*",
+    "auditbeat-*",
+    "winlogbeat-*"
+  ],
+  "settings": {
+    "index": {
+    }
+  },
+  "mappings": {
+	 "properties": {
+		"event": {
+		  "properties": {
+			"received_time": {
+			  "type": "date",
+			  "format": "HH:mm:ss"
+			},
+			"received_at": {
+			  "type": "date"
+			}
+		  }
+		}
+	  }
+  }
+}

@@ -1,0 +1,20 @@
+---
+# tasks file for install-rabbitmq
+- name: Creates directory
+  file:
+    path: '{{ installation_files }}'
+    state: directory  
+    
+- name: copy rabbitmq installation files
+  copy:
+    src: '{{ installation_files }}/rabbitmq'
+    dest: '{{ installation_files }}'
+    
+- name: install rabbitmq 
+  command: dpkg -R --install {{ installation_files }}/rabbitmq/
+  
+- name: systemctl daemon-reload 
+  command: systemctl daemon-reload
+  
+- name: enable rabbitmq-server service
+  command: systemctl enable rabbitmq-server.service

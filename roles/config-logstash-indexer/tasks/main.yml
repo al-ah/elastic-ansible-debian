@@ -1,0 +1,143 @@
+---
+- name: stop logstash service 
+  systemd:
+    name: logstash.service
+    state: stopped
+
+# make logstash backup
+- name: create /etc/logstash-backup directory
+  file:
+    path: "/etc/logstash-backup"
+    state: directory
+    
+- name: create /etc/logstash-backup directory
+  command: "cp -r /etc/logstash /etc/logstash-backup/date-{{ lookup('pipe', 'date +%Y%m%d-%H%M') }}"
+  ignore_errors: yes
+  
+- name: remove current logstash /etc/logstash/conf.d/*
+  shell: "rm -rf /etc/logstash/conf.d/*"
+  ignore_errors: yes
+#
+    
+- name: copy logstash.yml
+  template:
+    src: logstash.yml.j2
+    dest: /etc/logstash/logstash.yml
+    
+- name: copy pipelines.yml
+  template:
+    src: pipelines.yml.j2
+    dest: /etc/logstash/pipelines.yml
+    
+- name: copy jvm.options
+  template:
+    src: jvm.options.j2
+    dest: /etc/logstash/jvm.options
+        
+- name: create certs directory
+  file:
+    path: "/etc/logstash/certs"
+    state: directory
+
+- name: copy ca.crt
+  copy:
+    src: '/elastic-ansible-debian/{{ certificate_path }}/ca/ca.crt'
+    dest: '/etc/logstash/certs/ca.crt'
+
+- name: copy wildcard.crt
+  copy:
+    src: '/elastic-ansible-debian/{{ certificate_path }}/wildcard/wildcard.crt'
+    dest: '/etc/logstash/certs/wildcard.crt'
+
+- name: copy wildcard.key
+  copy:
+    src: '/elastic-ansible-debian/{{ certificate_path }}/wildcard/wildcard.key'
+    dest: '/etc/logstash/certs/wildcard.key'
+
+# install logstash plugins
+- name: create logstash ofline plugin directory
+  file:
+    path: "/tmp/logstash-ofline-plugins"
+    state: directory
+    
+- name: copy logstash ofline plugins
+  copy:
+    src: logstash-offline-plugins/{{ item }}
+    dest: /tmp/logstash-ofline-plugins/{{ item }}
+  ignore_errors: yes
+  with_items:
+    - logstash-filter-memoize.zip
+    - logstash-filter-tld.zip
+    - logstash-filter-asset_network.zip
+#    - logstash-input-lumberjack.zip
+#    - logstash-output-lumberjack.zip
+
+- name: install logstash ofline plugins
+  command: '/usr/share/logstash/bin/logstash-plugin install file:///tmp/logstash-ofline-plugins/{{ item }}'
+  ignore_errors: yes
+  args:
+    chdir: "/usr/share/logstash"
+  with_items:
+    - logstash-filter-memoize.zip
+    - logstash-filter-tld.zip 
+    - logstash-filter-asset_network.zip
+#    - logstash-input-lumberjack.zip
+#    - logstash-output-lumberjack.zip  
+  
+# change elastic output options in pipelines
+
+- name: Creates pipelines directory
+  file:
+    path: /etc/logstash/conf.d/pipelines
+    state: directory  
+    
+- name: Creates indexer-default pipeline directory
+  file:
+    path: /etc/logstash/conf.d/pipelines/indexer-default
+    state: directory 
+    
+- name: copy logstash ip_clean_and_public.rb
+  copy:
+    src: conf.d/pipelines/ip_clean_and_public.rb
+    dest: /etc/logstash/conf.d/pipelines/ip_clean_and_public.rb
+    
+- name: copy logstash network-list.json
+  copy:
+    src: conf.d/pipelines/network-list.json
+    dest: /etc/logstash/conf.d/pipelines/network-list.json
+  
+- name: copy logstash templates
+  copy:
+    src: conf.d/templates
+    dest: /etc/logstash/conf.d/
+
+- name: copy pipeline indexer-default files
+  template:
+    src: "{{ item }}"
+    dest: "/etc/logstash/conf.d/{{ item }}"  
+  ignore_errors: yes
+  with_items:
+    - pipelines/indexer-default/1100-input-rabbitmq.conf
+    - pipelines/indexer-default/1101-input-alexa.conf.dis
+    - pipelines/indexer-default/1200-beats-metadata.conf
+    - pipelines/indexer-default/1400-fortigate-preprocess.conf
+    - pipelines/indexer-default/1500-dns-process.conf
+    - pipelines/indexer-default/1600-ip-postprocess.conf
+    - pipelines/indexer-default/1601-geoip-postprocess.conf
+    - pipelines/indexer-default/1602-alexa-top1m-tagging.conf.dis
+    - pipelines/indexer-default/1602-top1m-memcached.conf.dis
+    - pipelines/indexer-default/1602-top1m-memoize.conf.dis
+    - pipelines/indexer-default/1603-check-networks.conf.dis
+    - pipelines/indexer-default/1605-reverse-dns-postprocess.conf.dis
+    - pipelines/indexer-default/1606-aggregate-connections.conf.dis
+    - pipelines/indexer-default/1607-connection-total-bytes.conf
+    - pipelines/indexer-default/1608-asset-network.conf.dis
+    - pipelines/indexer-default/1900-output-beats-v7.conf.dis
+    - pipelines/indexer-default/1900-output-beats-v8.conf
+    - pipelines/indexer-default/1901-output-aggregated-con.conf.dis
+    - pipelines/indexer-default/templates.conf.dis
+
+- name: start logstash service 
+  systemd:
+    name: logstash.service
+    state: started    

@@ -1,0 +1,11 @@
+---
+# besme allah
+# author: ali.ahmadi
+- hosts: all
+  become: yes
+  tasks:   
+  - name: ping all hosts
+    ping:
+#      data: crash
+  - import_role:
+      name: defaults

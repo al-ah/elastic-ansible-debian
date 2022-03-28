@@ -1,0 +1,131 @@
+---
+- name: stop logstash service 
+  systemd:
+    name: logstash.service
+    state: stopped
+    
+- name: add next_collector to /etc/hosts
+  lineinfile:
+    dest: /etc/hosts
+    line: "{{ next_collector }} next_collector"
+  when: logstash_forward_enable|default(false)|bool == true
+    
+# make logstash backup
+- name: create /etc/logstash-backup directory
+  file:
+    path: "/etc/logstash-backup"
+    state: directory
+    
+- name: create /etc/logstash-backup directory
+  command: "cp -r /etc/logstash /etc/logstash-backup/date-{{ lookup('pipe', 'date +%Y%m%d-%H%M') }}"
+  ignore_errors: yes
+  
+- name: remove current logstash /etc/logstash/conf.d/*
+  shell: "rm -rf /etc/logstash/conf.d/*"
+  ignore_errors: yes
+#    
+
+- name: copy logstash.yml
+  template:
+    src: logstash.yml.j2
+    dest: /etc/logstash/logstash.yml
+    
+- name: copy pipelines.yml
+  template:
+    src: pipelines.yml.j2
+    dest: /etc/logstash/pipelines.yml
+    
+- name: copy jvm.options
+  template:
+    src: jvm.options.j2
+    dest: /etc/logstash/jvm.options
+
+- name: create certs directory
+  file:
+    path: "/etc/logstash/certs"
+    state: directory
+
+- name: copy ca.crt
+  copy:
+    src: '/elastic-ansible-debian/{{ certificate_path }}/ca/ca.crt'
+    dest: '/etc/logstash/certs/ca.crt'
+
+- name: copy wildcard.crt
+  copy:
+    src: '/elastic-ansible-debian/{{ certificate_path }}/wildcard/wildcard.crt'
+    dest: '/etc/logstash/certs/wildcard.crt'
+
+- name: copy wildcard.key
+  copy:
+    src: '/elastic-ansible-debian/{{ certificate_path }}/wildcard/wildcard.key'
+    dest: '/etc/logstash/certs/wildcard.key'
+
+
+- name: copy lumberjack.cert
+  copy:
+    src: 'lumberjack-certs/lumberjack.cert'
+    dest: '/etc/logstash/certs/lumberjack.cert'
+
+- name: copy lumberjack.key
+  copy:
+    src: 'lumberjack-certs/lumberjack.key'
+    dest: '/etc/logstash/certs/lumberjack.key'
+    
+# install logstash plugins
+- name: create logstash ofline plugin directory
+  file:
+    path: "/tmp/logstash-ofline-plugins"
+    state: directory
+    
+- name: copy logstash ofline plugins
+  copy:
+    src: logstash-offline-plugins/{{ item }}
+    dest: /tmp/logstash-ofline-plugins/{{ item }}
+  ignore_errors: yes
+  with_items:
+    - logstash-filter-memoize.zip
+    - logstash-filter-tld.zip
+    - logstash-filter-asset_network.zip
+#    - logstash-input-lumberjack.zip
+#    - logstash-output-lumberjack.zip
+
+- name: install logstash ofline plugins
+  command: '/usr/share/logstash/bin/logstash-plugin install file:///tmp/logstash-ofline-plugins/{{ item }}'
+  ignore_errors: yes
+  args:
+    chdir: "/usr/share/logstash"
+  with_items:
+    - logstash-filter-memoize.zip
+    - logstash-filter-tld.zip 
+    - logstash-filter-asset_network.zip
+#    - logstash-input-lumberjack.zip
+#    - logstash-output-lumberjack.zip  
+    
+# change elastis output options in pipelines
+- name: Creates pipelines directory
+  file:
+    path: /etc/logstash/conf.d/pipelines
+    state: directory  
+    
+- name: copy logstash pipelines
+  copy:
+    src: conf.d/pipelines/{{ item }}
+    dest: /etc/logstash/conf.d/pipelines/
+  with_items:
+    - collector-default
+    - collector-need-forward
+    - collector-get-forwarded
+    
+- name: set forward_tag
+  replace:
+    path: /etc/logstash/conf.d/pipelines/collector-need-forward/{{ item }}
+    regexp: 'forward_tag'
+    replace: "{{ forward_tag }}"
+  with_items:
+    - 1900-forward-tag.conf
+  ignore_errors: yes
+    
+- name: start logstash service 
+  systemd:
+    name: logstash.service
+    state: started    

@@ -1,0 +1,5 @@
+
+# settings to place into the settings.index for beats indices
+beats_number_of_shards: 2
+beats_number_of_replicas: 2
+beats_codec: best_compression

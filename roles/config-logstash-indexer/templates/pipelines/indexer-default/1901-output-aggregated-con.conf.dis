@@ -1,0 +1,14 @@
+output {
+	if [event][type] == 'aggregated_conn' {
+		elasticsearch {
+			hosts => {{ elastic_data_hosts }}
+			ssl => true
+			cacert => "/etc/logstash/certs/ca.crt"				
+			ssl_certificate_verification => false
+			user => "insert_data"
+			password => "{{ insert_data_pass }}"
+			index => "aggregated-conn-%{+YYYY.MM.dd}" 
+		}
+	}
+	
+}

@@ -1,0 +1,8 @@
+#- pipeline.id: main
+#  path.config: "/etc/logstash/conf.d/*.conf"
+
+- pipeline.id: indexer-default
+  path.config: "/etc/logstash/conf.d/pipelines/indexer-default/*.conf"
+  pipeline.workers: 2
+  pipeline.batch.size: 125
+  pipeline.batch.delay: 50  

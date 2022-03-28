@@ -1,0 +1,15 @@
+---
+# tasks file for promisc-interface
+- name: copy promisc.service
+  template: 
+    src: promisc.service.j2 
+    dest: /etc/systemd/system/promisc.service
+  
+- name: systemctl daemon-reload 
+  command: systemctl daemon-reload
+  
+- name: enable promisc service
+  command: systemctl enable promisc.service
+  
+- name: start promisc service
+  command: systemctl start promisc.service

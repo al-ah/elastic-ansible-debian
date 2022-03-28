@@ -1,0 +1,93 @@
+---
+# tasks file for config-rabbitmq
+- name: copy rabbitmq.conf
+  template: 
+    src: rabbitmq.conf.j2 
+    dest: /etc/rabbitmq/rabbitmq.conf
+    
+- name: copy rabbitmq_1.conf
+  template: 
+    src: rabbitmq_1.conf.j2 
+    dest: /etc/rabbitmq/rabbitmq_1.conf
+    
+- name: copy rabbitmq_2.conf
+  template: 
+    src: rabbitmq_2.conf.j2 
+    dest: /etc/rabbitmq/rabbitmq_2.conf
+    
+- name: enable rabbitmq_management
+  command: rabbitmq-plugins enable rabbitmq_management
+  
+- name: start rabbitmq-server.service
+  systemd:
+    name: rabbitmq-server.service
+    state: restarted    
+      
+- name: add admin user to rabbitmq
+  command: rabbitmqctl add_user {{ message_broker_admin_user }} "{{ message_broker_admin_pass }}"
+  ignore_errors: yes
+  
+- name: add rabbitmq administrator tags to {{ message_broker_admin_user }}
+  command: rabbitmqctl set_user_tags {{ message_broker_admin_user }} administrator
+  
+- name: set rabbitmq {{ message_broker_admin_user }} permission
+  command: rabbitmqctl set_permissions -p / {{ message_broker_admin_user }} ".*" ".*" ".*"
+  
+- name: add data user to rabbitmq
+  command: rabbitmqctl add_user {{ message_broker_data_user }} "{{ message_broker_data_pass }}"
+  ignore_errors: yes
+  
+- name: add rabbitmq administrator tags to {{ message_broker_data_user }}
+  command: rabbitmqctl set_user_tags {{ message_broker_data_user }} administrator
+  
+- name: set rabbitmq {{ message_broker_data_user }} permission
+  command: rabbitmqctl set_permissions -p / {{ message_broker_data_user }} ".*" ".*" ".*"
+  
+- name: set rabbitmq policy
+  command: rabbitmqctl set_policy --priority 1  --apply-to queues "all_queue" ".*" '{"ha-mode":"exactly","ha-params":2,"ha-sync-mode":"automatic","max-length":{{ rabbitmq_queues_max_length }}}'
+
+- name: Creates directory
+  file:
+    path: '/usr/share/elastic-stack'
+    state: directory  
+
+- name: copy rabbitmq-cluster files
+  copy: 
+    src: 'usr/share/elastic-stack/{{ item }}'
+    dest: '/usr/share/elastic-stack/{{ item }}'
+  with_items:
+    - rabbitmq-cluster.py
+    - rabbitmq-cluster-reload.sh
+    - rabbitmq-cluster-start.sh 
+    
+- name: set +x for rabbitmq-cluster fiels in /usr/......
+  file:
+    path: /usr/share/elastic-stack/{{ item }}
+    mode: '0755'
+  with_items:
+    - rabbitmq-cluster.py
+    - rabbitmq-cluster-reload.sh
+    - rabbitmq-cluster-start.sh    
+
+- name: view deploy rabbitmq-cluster status
+  ansible.builtin.debug:
+    msg: do "tail -f /var/log/rabbitmq-cluster.log" in {{ ansible_host }} and view deploy logs
+    
+- name: deploy rabbitmq-cluster 
+  command: python3 /usr/share/elastic-stack/rabbitmq-cluster.py -a deploy
+  
+- name: copy rabbitmq-cluster.service file
+  copy: 
+    src: 'etc/systemd/system/rabbitmq-cluster.service'
+    dest: '/etc/systemd/system/rabbitmq-cluster.service'
+  
+- name: systemctl daemon-reload 
+  command: systemctl daemon-reload
+  
+- name: enable rabbitmq-cluster service
+  command: systemctl enable rabbitmq-cluster.service
+  
+- name: start rabbitmq-cluster.service
+  systemd:
+    name: rabbitmq-cluster.service
+    state: started

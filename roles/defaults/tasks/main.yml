@@ -1,0 +1,57 @@
+--- 
+- name: set time zone
+  command: timedatectl set-timezone '{{ timezone }}'
+  
+- name: Set a hostname
+  hostname:
+    name: "{{ ansible_host }}"
+    
+- name: copy hosts file to hosts
+  copy:
+    src: /etc/hosts
+    dest: /etc/hosts
+    
+- name: create installation directory
+  file:
+    path: '{{ installation_files }}'
+    state: directory  
+
+- name: copy curl.deb file to the host
+  copy:
+    src: '{{ installation_files }}/curl.deb'
+    dest: '{{ installation_files }}/curl.deb'
+    
+- name: install curl.deb 
+  command: dpkg -i {{ installation_files }}/curl.deb
+
+- name: copy locate.deb file to the host
+  copy:
+    src: '{{ installation_files }}/locate.deb'
+    dest: '{{ installation_files }}/locate.deb'
+    
+- name: install locate.deb 
+  command: dpkg -i {{ installation_files }}/locate.deb
+  
+- name: copy python3-ptyprocess.deb file to the host
+  copy:
+    src: '{{ installation_files }}/python3-ptyprocess.deb'
+    dest: '{{ installation_files }}/python3-ptyprocess.deb'
+    
+- name: install python3-ptyprocess.deb 
+  command: dpkg -i {{ installation_files }}/python3-ptyprocess.deb
+
+- name: copy python3-pexpect.deb file to the host
+  copy:
+    src: '{{ installation_files }}/python3-pexpect.deb'
+    dest: '{{ installation_files }}/python3-pexpect.deb'
+    
+- name: install python3-pexpect.deb 
+  command: dpkg -i {{ installation_files }}/python3-pexpect.deb
+  
+- name: copy yamllint to the host
+  copy:
+    src: '{{ installation_files }}/yamllint'
+    dest: '{{ installation_files }}'    
+    
+- name: install yamllint 
+  command: dpkg -R --install {{ installation_files }}/yamllint/

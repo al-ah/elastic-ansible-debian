@@ -1,0 +1,123 @@
+---
+# besme allah
+# author: ali.ahmadi
+
+- hosts: all
+  become: yes
+  tasks:   
+  - import_role:
+      name: defaults
+      
+- hosts: elastic
+  become: yes
+  tasks:   
+  - import_role:
+      name: install-elastic
+      
+- hosts: initial_master
+  become: yes
+  tasks:   
+  - import_role:
+      name: make-certificate
+      
+- hosts: elastic
+  become: yes
+  tasks:   
+  - import_role:
+      name: config-elastic
+  - import_role:
+      name: config-ilm
+      
+- hosts: kibana
+  become: yes
+  tasks:   
+  - import_role:
+      name: install-kibana
+  - import_role:
+      name: config-kibana
+      
+- hosts: initial_master
+  become: yes
+  tasks:   
+  #install beats before setups
+  - import_role:
+      name: install-auditbeat
+  - import_role:
+      name: config-auditbeat
+  - import_role:
+      name: install-metricbeat
+  - import_role:
+      name: config-metricbeat
+  - import_role:
+      name: install-filebeat
+  - import_role:
+      name: config-filebeat
+  - import_role:
+      name: install-packetbeat
+  - import_role:
+      name: config-packetbeat
+  # beats setup dashboards    
+  - import_role:
+      name: beats-setup
+
+- hosts: collector
+  become: yes
+  tasks:   
+  - import_role:
+      name: promisc-interface
+  - import_role:
+      name: install-haproxy
+  - import_role:
+      name: config-haproxy
+  - import_role:
+      name: install-zeek
+  - import_role:
+      name: config-zeek
+  - import_role:
+      name: install-suricata
+  - import_role:
+      name: config-suricata
+  - import_role:
+      name: install-rabbitmq
+  - import_role:
+      name: config-rabbitmq
+  - import_role:
+      name: install-logstash
+  - import_role:
+      name: config-logstash-collector
+  - import_role:
+      name: install-filebeat
+  - import_role:
+      name: config-filebeat-collector
+  - import_role:
+      name: install-packetbeat
+  - import_role:
+      name: config-packetbeat
+  - import_role:
+      name: generate-event
+      
+- hosts: indexer
+  become: yes
+  tasks:   
+  - import_role:
+      name: install-logstash
+  - import_role:
+      name: install-memcached
+  - import_role:
+      name: config-logstash-indexer
+      
+- hosts: auditbeat
+  become: yes
+  tasks:   
+  - import_role:
+      name: install-auditbeat
+  - import_role:
+      name: config-auditbeat
+      
+- hosts: metricbeat
+  become: yes
+  tasks:   
+  - import_role:
+      name: install-metricbeat
+  - import_role:
+      name: config-metricbeat

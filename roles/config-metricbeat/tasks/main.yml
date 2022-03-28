@@ -1,0 +1,32 @@
+---
+# tasks file for config-metricbeat
+- name: stop metricbeat service 
+  systemd:
+    name: metricbeat.service
+    state: stopped
+    
+- name: copy metricbeat.yml
+  template:
+    src: metricbeat.yml.j2
+    dest: /etc/metricbeat/metricbeat.yml
+    
+- name: copy metricbeat modules system
+  template:
+    src: modules.d/system.yml.j2
+    dest: /etc/metricbeat/modules.d/system.yml
+     
+- name: create certs directory
+  file:
+    path: "/etc/metricbeat/certs"
+    state: directory
+    
+- name: copy ca.crt
+  copy:
+    src: '/elastic-ansible-debian/{{ certificate_path }}/ca/ca.crt'
+    dest: '/etc/metricbeat/certs/ca.crt'
+
+- name: start metricbeat service 
+  systemd:
+    name: metricbeat.service
+    state: started  
+

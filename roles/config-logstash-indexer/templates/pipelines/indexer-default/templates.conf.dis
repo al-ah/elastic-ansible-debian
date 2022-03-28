@@ -1,0 +1,17 @@
+output {
+	
+	if 1 == 0 {
+		elasticsearch {
+			hosts => {{ elastic_data_hosts }}
+			ssl => true
+			cacert => "/etc/logstash/certs/ca.crt"				
+			ssl_certificate_verification => false
+			user => "insert_data"
+			password => "{{ insert_data_pass }}"
+			index => "beats" 
+			template => "/etc/logstash/conf.d/templates/ea_received_time_new.json"
+			template_name => "ea_received_time"
+  			template_overwrite => true
+		}
+	}
+}

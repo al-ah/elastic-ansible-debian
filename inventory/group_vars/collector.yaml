@@ -1,0 +1,25 @@
+promisc_interface: "ens36"
+
+zeek_local_network: "192.168.220.0/24"
+zeek_interface: "ens36"
+
+# HOME_NET which includes the IP address of the system on which Suricata is running.
+#more specific is better for alert accuracy and performance
+suricata_home_net : "[192.168.0.0/16,10.0.0.0/8,172.16.0.0/12]"
+suricata_interface: "ens36"
+
+packetbeat_interface: "any"
+
+
+logstash_jvm_min: 512m
+logstash_jvm_max: 512m
+logstash_log_level: info
+
+# It takes approximately 2GB of RAM to store one million messages in queues
+rabbitmq_total_memory: 2GB
+rabbitmq_queues_max_length: 1000000
+
+logstash_forward_enable: true
+next_collector: 127.0.0.1
+forward_tag: "ft_forward_tag"
+logstash_get_forwarded_enable: true

@@ -1,0 +1,9 @@
+---
+# besme allah
+# author: ali.ahmadi
+
+- hosts: kibana
+  become: yes
+  tasks:   
+  - import_role:
+      name: config-kibana

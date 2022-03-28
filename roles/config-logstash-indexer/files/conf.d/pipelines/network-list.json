@@ -1,0 +1,5 @@
+{"name" : "range_one","network" : "192.168.1.0/24","tags" : "net1", "lat" : 51, "lon" : 35}
+{"name" : "range_two","network" : "192.168.2.0/24","tags" : "net2", "lat" : 51.39109, "lon" : 35.70305}
+{"network" : "192.168.3.0/24","tags" : "net3"}
+{"name" : "range_four","network" : "192.168.4.0/24"}
+
