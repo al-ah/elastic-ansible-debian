@@ -19,7 +19,7 @@ logstash_log_level: info
 rabbitmq_total_memory: 2GB
 rabbitmq_queues_max_length: 1000000
 
-logstash_forward_enable: true
-next_collector: 127.0.0.1
+logstash_forward_enable: false
+next_collector: 192.168.220.132
 forward_tag: "ft_forward_tag"
-logstash_get_forwarded_enable: true
+logstash_get_forwarded_enable: false
