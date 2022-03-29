@@ -1,1 +1,0 @@
-https://www.percona.com/blog/2020/01/02/how-to-create-your-own-repositories-for-packages/
